@@ -1,0 +1,19 @@
+services:
+  api-project-management:
+    image: node:24-alpine
+    container_name: api-project-management
+    restart: unless-stopped
+    tty: true
+    working_dir: /app 
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "3100:3000"
+    networks:
+      - shared-network
+    command: ["npm", "start"]
+
+networks:
+  shared-network:
+    external: true
