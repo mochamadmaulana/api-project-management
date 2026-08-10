@@ -56,6 +56,13 @@ const getRoleById = async (req, res) => {
       attributes: ['id', 'name', 'created_at', 'updated_at'],
     });
 
+    if (!role) {
+      return res.status(404).json({
+        status: 'error',
+        message: `Data id ${id} not found.`,
+      });
+    }
+
     return res.status(200).json({
       status: 'success',
       message: `Get data id ${id} successfully.`,
@@ -71,17 +78,7 @@ const updateRole = async (req, res) => {
     const { id } = req.params;
     const { name } = req.body;
 
-    const role = await Role.findByPk(id);
-
-    if (!role) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Data id ${id} not found.',
-        data: role
-      });
-    }
-
-    const updatedRole = await Role.update({ name },
+    const updatedrole = await Role.update({ name },
       {
         where: {
           id: id,
@@ -89,12 +86,16 @@ const updateRole = async (req, res) => {
       }
     )
 
+    if (updatedrole == 0) {
+      return res.status(404).json({
+        status: 'error',
+        message: `Data id ${id} not found.`,
+      });
+    }
+
     return res.status(200).json({
       status: 'success',
-      message: `Updated data id ${id} successfully.`,
-      data: {
-        id: id
-      }
+      message: `Updated data id ${id} successfully.`
     });
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
@@ -108,14 +109,40 @@ const updateRole = async (req, res) => {
         ]
       });
     }
-    
+
     return res.status(500).json({ status: 'error', message: error.message });
   }
 };
+
+const deleteRole = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const role = await Role.destroy({
+      where: {
+        id: id,
+      },
+    });
+    
+    if (!role) {
+      return res.status(404).json({
+        status: 'error',
+        message: `Data id ${id} not found.`,
+      });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      message: `Deleted data id ${id} successfully.`
+    });
+  } catch (error) {
+    return res.status(500).json({ status: 'error', message: error.message });
+  }
+}
 
 module.exports = {
   getAllRoles,
   createRole,
   getRoleById,
-  updateRole
+  updateRole,
+  deleteRole
 };

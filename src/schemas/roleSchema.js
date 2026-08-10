@@ -21,7 +21,14 @@ const updateRoleSchema = z.object({
   })
 });
 
+const deleteRoleSchema = z.object({
+  params: z.object({
+    id: z.string().regex(/^\d+$/, "Params ID must be numeric.")
+  }),
+});
+
 module.exports = {
   createRoleSchema,
-  updateRoleSchema
+  updateRoleSchema,
+  deleteRoleSchema
 };
