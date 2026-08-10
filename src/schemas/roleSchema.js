@@ -3,12 +3,25 @@ const { z } = require('zod');
 const createRoleSchema = z.object({
   body: z.object({
     name: z.string({
-      error: (iss) => iss.input === undefined ? "Field is required." : "Invalid input."
+      error: (iss) => iss.input === undefined ? "Input is required." : "Invalid input."
     })
-      .min(3, "Field minimum 3 characters")
+      .min(3, "Input minimum 3 characters")
+  })
+});
+
+const updateRoleSchema = z.object({
+  params: z.object({
+    id: z.string().regex(/^\d+$/, "Params ID must be numeric.")
+  }),
+  body: z.object({
+    name: z.string({
+      error: (iss) => iss.input === undefined ? "Input is required." : "Invalid input."
+    })
+      .min(3, "Input minimum 3 characters")
   })
 });
 
 module.exports = {
-  createRoleSchema
+  createRoleSchema,
+  updateRoleSchema
 };
