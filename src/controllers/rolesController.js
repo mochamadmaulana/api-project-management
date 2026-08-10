@@ -19,11 +19,9 @@ const getAllRoles = async (req, res) => {
 
 const createRole = async (req, res) => {
   try {
-    const name = req.body.name;
+    const { name } = req.body;
 
-    const role = await Role.create({
-      name: name
-    });
+    const role = await Role.create({name});
 
     return res.status(201).json({
       status: 'success',
@@ -37,7 +35,24 @@ const createRole = async (req, res) => {
   }
 }
 
+const getRoleById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const role = await Role.findByPk(id, {
+      attributes: ['id', 'name', 'created_at', 'updated_at'],
+    });
+
+    return res.status(200).json({
+      status: 'success',
+      data: role
+    });
+  } catch (error) {
+    return res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
 module.exports = { 
   getAllRoles,
-  createRole
+  createRole,
+  getRoleById
 };
