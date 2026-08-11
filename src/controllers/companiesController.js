@@ -1,19 +1,19 @@
-const { Role } = require('../models');
+const { Company } = require('../models');
 
-const getAllRoles = async (req, res) => {
+const getAllCompanies = async (req, res) => {
   try {
     const { page = 1, show = 10 } = req.query;
     const limit = parseInt(show);
     const offset = (parseInt(page) - 1) * limit;
 
-    const [roles, totalItems] = await Promise.all([
-      Role.findAll({
+    const [companies, totalItems] = await Promise.all([
+      Company.findAll({
         limit: limit,
         offset: offset,
         attributes: ['id', 'name', 'created_at', 'updated_at'],
         order: [['created_at', 'DESC']]
       }),
-      Role.count()
+      Company.count()
     ]);
 
     const totalPages = Math.ceil(totalItems / limit);
@@ -21,9 +21,9 @@ const getAllRoles = async (req, res) => {
     return res.status(200).json({
       status: 'success',
       message: 'Get all data successfully.',
-      data: roles,
+      data: companies,
       pagination: {
-        show_item: roles.length,
+        show_item: companies.length,
         current_page: parseInt(page),
         total_item: totalItems,
         total_page: totalPages,
@@ -35,13 +35,13 @@ const getAllRoles = async (req, res) => {
   }
 };
 
-const createRole = async (req, res) => {
+const createCompany = async (req, res) => {
   try {
     const { name } = req.body;
 
-    const roleExist = await Role.findOne({where: {name}});
+    const companyExist = await Company.findOne({where: {name}});
 
-    if (roleExist) {
+    if (companyExist) {
       return res.status(400).json({
         status: 'error',
         errors: [
@@ -53,14 +53,14 @@ const createRole = async (req, res) => {
       });
     }
 
-    const role = await Role.create({ name });
+    const company = await Company.create({ name });
 
     return res.status(201).json({
       status: 'success',
       message: 'Created data successfully.',
       data: {
-        id: role.id,
-        name: role.name,
+        id: company.id,
+        name: company.name,
       }
     });
   } catch (error) {
@@ -68,14 +68,14 @@ const createRole = async (req, res) => {
   }
 }
 
-const getRoleById = async (req, res) => {
+const getCompanyById = async (req, res) => {
   try {
     const { id } = req.params;
-    const role = await Role.findByPk(id, {
+    const company = await Company.findByPk(id, {
       attributes: ['id', 'name', 'created_at', 'updated_at'],
     });
 
-    if (!role) {
+    if (!company) {
       return res.status(404).json({
         status: 'error',
         message: `Data id ${id} not found.`,
@@ -85,29 +85,29 @@ const getRoleById = async (req, res) => {
     return res.status(200).json({
       status: 'success',
       message: `Get data id ${id} successfully.`,
-      data: role
+      data: company
     });
   } catch (error) {
     return res.status(500).json({ status: 'error', message: error.message });
   }
 };
 
-const updateRole = async (req, res) => {
+const updateCompany = async (req, res) => {
   try {
     const { id } = req.params;
     const { name } = req.body;
 
-    const role = await Role.findByPk(id);
+    const company = await Company.findByPk(id);
 
-    if (!role) {
+    if (!company) {
       return res.status(404).json({
         status: 'error',
         message: `Data id ${id} not found.`,
       });
     }
 
-    role.name = name;
-    await role.save();
+    company.name = name;
+    await company.save();
 
     return res.status(200).json({
       status: 'success',
@@ -130,16 +130,16 @@ const updateRole = async (req, res) => {
   }
 };
 
-const deleteRole = async (req, res) => {
+const deleteCompany = async (req, res) => {
   try {
     const { id } = req.params;
-    const role = await Role.destroy({
+    const company = await Company.destroy({
       where: {
         id: id,
       },
     });
 
-    if (!role) {
+    if (!company) {
       return res.status(404).json({
         status: 'error',
         message: `Data id ${id} not found.`,
@@ -156,9 +156,9 @@ const deleteRole = async (req, res) => {
 }
 
 module.exports = {
-  getAllRoles,
-  createRole,
-  getRoleById,
-  updateRole,
-  deleteRole
+  getAllCompanies,
+  createCompany,
+  getCompanyById,
+  updateCompany,
+  deleteCompany
 };

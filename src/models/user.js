@@ -23,9 +23,19 @@ module.exports = (sequelize, DataTypes) => {
     },
     role_id: {
       type: DataTypes.INTEGER,
-      allowNull: true,
+      allowNull: false,
       references: {
         model: 'roles',
+        key: 'id'
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL'
+    },
+    company_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'companies',
         key: 'id'
       },
       onUpdate: 'CASCADE',
@@ -58,7 +68,12 @@ module.exports = (sequelize, DataTypes) => {
   User.associate = (models) => {
     User.belongsTo(models.Role, {
       foreignKey: 'role_id',
-      as: 'roles'
+      as: 'role'
+    });
+
+    User.belongsTo(models.Company, {
+      foreignKey: 'company_id',
+      as: 'company'
     });
   };
 

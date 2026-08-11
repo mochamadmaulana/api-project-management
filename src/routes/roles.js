@@ -4,7 +4,6 @@ const validate = require('../middlewares/validate');
 const { createRoleSchema, updateRoleSchema, deleteRoleSchema } = require('../schemas/roleSchema');
 const { getAllRoles, createRole, getRoleById, updateRole, deleteRole } = require('../controllers/rolesController');
 
-// localhost:3000/api/v1/role/
 router.get('/', getAllRoles);
 router.post('/', validate(createRoleSchema), createRole);
 router.get('/:id', getRoleById);
