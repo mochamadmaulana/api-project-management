@@ -2,16 +2,33 @@ const { Role } = require('../models');
 
 const getAllRoles = async (req, res) => {
   try {
-    const roles = await Role.findAll({
-      attributes: ['id', 'name', 'created_at', 'updated_at'],
-      order: [['created_at', 'DESC']]
-    });
+    const { page = 1, show = 10 } = req.query;
+    const limit = parseInt(show);
+    const offset = (parseInt(page) - 1) * limit;
+
+    const [roles, totalItems] = await Promise.all([
+      Role.findAll({
+        limit: limit,
+        offset: offset,
+        attributes: ['id', 'name', 'created_at', 'updated_at'],
+        order: [['created_at', 'DESC']]
+      }),
+      Role.count()
+    ]);
+
+    const totalPages = Math.ceil(totalItems / limit);
 
     return res.status(200).json({
       status: 'success',
       message: 'Get all data successfully.',
-      total: roles.length,
-      data: roles
+      data: roles,
+      pagination: {
+        show_item: roles.length,
+        current_page: parseInt(page),
+        total_item: totalItems,
+        total_page: totalPages,
+        has_next_page: page < totalPages 
+      }
     });
   } catch (error) {
     return res.status(500).json({ status: 'error', message: error.message });
@@ -21,6 +38,20 @@ const getAllRoles = async (req, res) => {
 const createRole = async (req, res) => {
   try {
     const { name } = req.body;
+
+    const roleExist = await Role.findOne({where: {name}});
+
+    if (roleExist) {
+      return res.status(400).json({
+        status: 'error',
+        errors: [
+          {
+            field: 'name',
+            message: 'Input is already exist.'
+          }
+        ]
+      });
+    }
 
     const role = await Role.create({ name });
 
@@ -33,18 +64,6 @@ const createRole = async (req, res) => {
       }
     });
   } catch (error) {
-    if (error.name === 'SequelizeUniqueConstraintError') {
-      return res.status(400).json({
-        status: 'error',
-        errors: [
-          {
-            field: 'name',
-            message: 'Input is already exist.'
-          }
-        ]
-      });
-    }
-
     return res.status(500).json({ status: 'error', message: error.message });
   }
 }
@@ -78,21 +97,18 @@ const updateRole = async (req, res) => {
     const { id } = req.params;
     const { name } = req.body;
 
-    const updatedrole = await Role.update({ name },
-      {
-        where: {
-          id: id,
-        }
-      }
-    )
+    const role = await Role.findByPk(id);
 
-    if (updatedrole == 0) {
+    if (!role) {
       return res.status(404).json({
         status: 'error',
         message: `Data id ${id} not found.`,
       });
     }
 
+    role.name = name;
+    await role.save();
+    
     return res.status(200).json({
       status: 'success',
       message: `Updated data id ${id} successfully.`
@@ -122,7 +138,7 @@ const deleteRole = async (req, res) => {
         id: id,
       },
     });
-    
+
     if (!role) {
       return res.status(404).json({
         status: 'error',
