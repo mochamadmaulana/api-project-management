@@ -4,8 +4,8 @@ const v = new Validator();
 const validate = (schema) => {
   const check = v.compile(schema);
 
-  return (req, res, next) => {
-    const result = check({
+  return async (req, res, next) => {
+    const result = await check({
       body: req.body,
       query: req.query,
       params: req.params,
@@ -14,6 +14,7 @@ const validate = (schema) => {
     if (result !== true) {
       return res.status(400).json({
         status: 'error',
+        message: 'Bad request, Something wrong.',
         errors: result.map((err) => ({
           type: err.type,
           request: err.field.split(".")[0],

@@ -10,7 +10,7 @@ const getAllCompanies = async (req, res) => {
       Company.findAll({
         limit: limit,
         offset: offset,
-        attributes: ['id', 'name', 'created_at', 'updated_at'],
+        attributes: { exclude: ['deleted_at']},
         order: [['created_at', 'DESC']]
       }),
       Company.count()
@@ -44,6 +44,7 @@ const createCompany = async (req, res) => {
     if (companyExist) {
       return res.status(400).json({
         status: 'error',
+        message: 'Bad request, Something wrong.',
         errors: [
           {
             field: 'name',
@@ -72,7 +73,7 @@ const getCompanyById = async (req, res) => {
   try {
     const { id } = req.params;
     const company = await Company.findByPk(id, {
-      attributes: ['id', 'name', 'created_at', 'updated_at'],
+      attributes: { exclude: ['deleted_at']},
     });
 
     if (!company) {
@@ -117,6 +118,7 @@ const updateCompany = async (req, res) => {
     if (error.name === 'SequelizeUniqueConstraintError') {
       return res.status(400).json({
         status: 'error',
+        message: 'Bad request, Something wrong.',
         errors: [
           {
             field: 'name',

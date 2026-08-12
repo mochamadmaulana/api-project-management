@@ -10,8 +10,22 @@ module.exports = (sequelize, DataTypes) => {
 		},
 		name: {
 			type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
+			allowNull: false,
+			unique: true
+		},
+		email: {
+			type: DataTypes.STRING,
+			allowNull: true,
+			unique: true
+		},
+		telephone: {
+			type: DataTypes.STRING,
+			allowNull: true,
+			unique: true
+		},
+		address: {
+			type: DataTypes.STRING,
+			allowNull: true,
 		},
 	}, {
 		tableName: 'companies',
@@ -34,11 +48,11 @@ module.exports = (sequelize, DataTypes) => {
 	});
 
 	Company.associate = (models) => {
-    Company.hasMany(models.User, {
-      foreignKey: 'company_id',
-      as: 'companies'
-    });
-  };
+		Company.hasMany(models.User, {
+			foreignKey: 'company_id',
+			as: 'companies'
+		});
+	};
 
 	return Company;
 }

@@ -10,7 +10,7 @@ const getAllRoles = async (req, res) => {
       Role.findAll({
         limit: limit,
         offset: offset,
-        attributes: ['id', 'name', 'created_at', 'updated_at'],
+        attributes: { exclude: ['deleted_at']},
         order: [['created_at', 'DESC']]
       }),
       Role.count()
@@ -44,6 +44,7 @@ const createRole = async (req, res) => {
     if (roleExist) {
       return res.status(400).json({
         status: 'error',
+        message: 'Bad request, Something wrong.',
         errors: [
           {
             field: 'name',
@@ -72,7 +73,7 @@ const getRoleById = async (req, res) => {
   try {
     const { id } = req.params;
     const role = await Role.findByPk(id, {
-      attributes: ['id', 'name', 'created_at', 'updated_at'],
+      attributes: { exclude: ['deleted_at']},
     });
 
     if (!role) {
@@ -117,6 +118,7 @@ const updateRole = async (req, res) => {
     if (error.name === 'SequelizeUniqueConstraintError') {
       return res.status(400).json({
         status: 'error',
+        message: 'Bad request, Something wrong.',
         errors: [
           {
             field: 'name',
