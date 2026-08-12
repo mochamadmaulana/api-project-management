@@ -28,7 +28,17 @@ const authLogin = async (req, res) => {
 
 const authRegister = async (req, res) => {
   try {
-    const { name, email, password, role_id, company_name, company_email, company_telephone, company_address } = req.body;
+    const { 
+      name, 
+      email, 
+      password, 
+      role_id, 
+      company_name, 
+      company_email, 
+      company_telephone, 
+      company_address 
+    } = req.body;
+    
     const userExist = await User.findOne({
       where: { email }
     })

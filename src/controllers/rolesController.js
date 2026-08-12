@@ -2,33 +2,15 @@ const { Role } = require('../models');
 
 const getAllRoles = async (req, res) => {
   try {
-    const { page = 1, show = 10 } = req.query;
-    const limit = parseInt(show);
-    const offset = (parseInt(page) - 1) * limit;
-
-    const [roles, totalItems] = await Promise.all([
-      Role.findAll({
-        limit: limit,
-        offset: offset,
-        attributes: { exclude: ['deleted_at']},
-        order: [['created_at', 'DESC']]
-      }),
-      Role.count()
-    ]);
-
-    const totalPages = Math.ceil(totalItems / limit);
+    const roles = await Role.findAll({
+      attributes: { exclude: ['deleted_at'] },
+      order: [['created_at', 'DESC']]
+    })
 
     return res.status(200).json({
       status: 'success',
       message: 'Get all data successfully.',
       data: roles,
-      pagination: {
-        show_item: roles.length,
-        current_page: parseInt(page),
-        total_item: totalItems,
-        total_page: totalPages,
-        has_next_page: page < totalPages 
-      }
     });
   } catch (error) {
     return res.status(500).json({ status: 'error', message: error.message });
@@ -39,7 +21,7 @@ const createRole = async (req, res) => {
   try {
     const { name } = req.body;
 
-    const roleExist = await Role.findOne({where: {name}});
+    const roleExist = await Role.findOne({ where: { name } });
 
     if (roleExist) {
       return res.status(400).json({
@@ -73,7 +55,7 @@ const getRoleById = async (req, res) => {
   try {
     const { id } = req.params;
     const role = await Role.findByPk(id, {
-      attributes: { exclude: ['deleted_at']},
+      attributes: { exclude: ['deleted_at'] },
     });
 
     if (!role) {
