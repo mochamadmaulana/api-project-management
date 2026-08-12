@@ -1,34 +1,41 @@
-const { z } = require('zod');
+const createCompanySchema = {
+  body: {
+    type: 'object',
+    props: {
+      name: 'string|min:3',
+    },
+  },
+  $$strict: false,
+};
 
-const createCompanySchema = z.object({
-  body: z.object({
-    name: z.string({
-      error: (iss) => iss.input === undefined ? "Input is required." : "Invalid input."
-    })
-      .min(3, "Input minimum 3 characters")
-  })
-});
+const updateCompanySchema = {
+  params: {
+    type: 'object',
+    props: {
+      id: 'string|numeric',
+    },
+  },
+  body: {
+    type: 'object',
+    props: {
+      name: 'string|min:3',
+    },
+  },
+  $$strict: false,
+};
 
-const updateCompanySchema = z.object({
-  params: z.object({
-    id: z.string().regex(/^\d+$/, "Params ID must be numeric.")
-  }),
-  body: z.object({
-    name: z.string({
-      error: (iss) => iss.input === undefined ? "Input is required." : "Invalid input."
-    })
-      .min(3, "Input minimum 3 characters")
-  })
-});
-
-const deleteCompanySchema = z.object({
-  params: z.object({
-    id: z.string().regex(/^\d+$/, "Params ID must be numeric.")
-  }),
-});
+const deleteCompanySchema = {
+  params: {
+    type: 'object',
+    props: {
+      id: 'string|numeric',
+    },
+  },
+  $$strict: false,
+};
 
 module.exports = {
   createCompanySchema,
   updateCompanySchema,
-  deleteCompanySchema
+  deleteCompanySchema,
 };

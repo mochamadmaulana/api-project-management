@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 3000;
 
 const rolesRouter = require('./src/routes/roles');
 const companiesRouter = require('./src/routes/company');
+const authenticationRouter = require('./src/routes/auth');
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use(cookieParser());
 
 app.use('/api/v1/role', rolesRouter);
 app.use('/api/v1/company', companiesRouter);
+// app.use('/api/v1/auth', authenticationRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

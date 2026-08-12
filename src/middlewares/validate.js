@@ -1,22 +1,30 @@
-const validate = (schema) => (req, res, next) => {
-  const result = schema.safeParse({
-    body: req.body,
-    query: req.query,
-    params: req.params,
-  });
+const Validator = require('fastest-validator');
+const v = new Validator();
 
-  if (!result.success) {
-    const issues = result.error.issues || result.error.errors || [];
-    return res.status(400).json({
-      status: 'error',
-      errors: issues.map((err) => ({
-        field: err.path.join('.').replace(/^(body|query|params)\./, ''),
-        message: err.message,
-      })),
+const validate = (schema) => {
+  const check = v.compile(schema);
+
+  return (req, res, next) => {
+    const result = check({
+      body: req.body,
+      query: req.query,
+      params: req.params,
     });
-  }
 
-  next();
+    if (result !== true) {
+      return res.status(400).json({
+        status: 'error',
+        errors: result.map((err) => ({
+          type: err.type,
+          request: err.field.split(".")[0],
+          field: err.field.split(".").pop(),
+          message: err.message.replace(/(body|query|params)\./g, ''),
+        })),
+      });
+    }
+
+    next();
+  };
 };
 
 module.exports = validate;
