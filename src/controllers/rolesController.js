@@ -64,7 +64,10 @@ const getRoleById = async (req, res) => {
       data: role
     });
   } catch (error) {
-    return res.status(500).json({ status: 'error', message: error.message });
+    return res.status(500).json({ 
+      message: 'Internal Server Error', 
+      error: error.message 
+    });
   }
 };
 
@@ -127,7 +130,6 @@ const deleteRole = async (req, res) => {
     return res.status(200).json({
       message: 'Deleted successfully.'
     });
-    
   } catch (error) {
     if (error.name === 'SequelizeForeignKeyConstraintError') {
       return res.status(409).json({
