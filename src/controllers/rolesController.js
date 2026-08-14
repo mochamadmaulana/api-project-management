@@ -8,8 +8,7 @@ const getAllRoles = async (req, res) => {
     })
 
     return res.status(200).json({
-      status: 'success',
-      message: 'Get all data successfully.',
+      message: 'All data fetched successfully.',
       data: roles,
     });
   } catch (error) {
@@ -24,23 +23,18 @@ const createRole = async (req, res) => {
     const roleExist = await Role.findOne({ where: { name } });
 
     if (roleExist) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Bad request, Something wrong.',
-        errors: [
-          {
-            field: 'name',
-            message: 'Input is already exist.'
-          }
-        ]
+      return res.status(422).json({
+        message: 'Unprocessable Entity.',
+        errors: {
+          name: "The name has already been taken."
+        }
       });
     }
 
     const role = await Role.create({ name });
 
     return res.status(201).json({
-      status: 'success',
-      message: 'Created data successfully.',
+      message: 'Created successfully.',
       data: {
         id: role.id,
         name: role.name,
@@ -60,14 +54,13 @@ const getRoleById = async (req, res) => {
 
     if (!role) {
       return res.status(404).json({
-        status: 'error',
-        message: `Data id ${id} not found.`,
+        message: 'Not Found.',
+        errors: `Role with ID ${id} does not exist.`,
       });
     }
 
     return res.status(200).json({
-      status: 'success',
-      message: `Get data id ${id} successfully.`,
+      message: `Role with ID ${id} founded.`,
       data: role
     });
   } catch (error) {
@@ -84,58 +77,71 @@ const updateRole = async (req, res) => {
 
     if (!role) {
       return res.status(404).json({
-        status: 'error',
-        message: `Data id ${id} not found.`,
+        message: 'Not Found.',
+        errors: `Role with ID ${id} does not exist.`,
       });
     }
 
-    role.name = name;
-    await role.save();
+    await role.update({ name });
 
     return res.status(200).json({
-      status: 'success',
-      message: `Updated data id ${id} successfully.`
+      message: 'Updated successfully.',
+      data: {
+        id: role.id,
+        name: role.name
+      }
     });
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Bad request, Something wrong.',
-        errors: [
-          {
-            field: 'name',
-            message: 'Input is already exist.'
-          }
-        ]
+      return res.status(422).json({
+        message: 'Unprocessable Entity',
+        errors: {
+          name: 'The name has already been taken.'
+        }
       });
     }
 
-    return res.status(500).json({ status: 'error', message: error.message });
+    return res.status(500).json({ 
+      message: 'Internal Server Error',
+      error: error.message 
+    });
   }
 };
 
 const deleteRole = async (req, res) => {
   try {
     const { id } = req.params;
-    const role = await Role.destroy({
-      where: {
-        id: id,
-      },
+    const deletedCount = await Role.destroy({
+      where: { id }
     });
 
-    if (!role) {
+    if (!deletedCount) {
       return res.status(404).json({
-        status: 'error',
-        message: `Data id ${id} not found.`,
+        message: 'Not Found.',
+        errors: {
+          id: `Role with ID ${id} does not exist.`
+        }
       });
     }
 
     return res.status(200).json({
-      status: 'success',
-      message: `Deleted data id ${id} successfully.`
+      message: 'Deleted successfully.'
     });
+    
   } catch (error) {
-    return res.status(500).json({ status: 'error', message: error.message });
+    if (error.name === 'SequelizeForeignKeyConstraintError') {
+      return res.status(409).json({
+        message: 'Conflict',
+        errors: {
+          id: 'Cannot delete this role because it is still in use by another record.'
+        }
+      });
+    }
+
+    return res.status(500).json({ 
+      message: 'Internal Server Error',
+      error: error.message 
+    });
   }
 }
 

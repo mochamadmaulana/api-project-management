@@ -1,26 +1,32 @@
 const Validator = require('fastest-validator');
 const v = new Validator();
 
+const formatErrors = (errors) => {
+  return errors.reduce((acc, err) => {
+    const fieldName = err.field.replace(/^(body|query|params)\./, '');
+
+    if (!acc[fieldName]) {
+      acc[fieldName] = err.message.replace(/(body|query|params)\./g, '');
+    }
+
+    return acc;
+  }, {});
+};
+
 const validate = (schema) => {
   const check = v.compile(schema);
 
-  return async (req, res, next) => {
-    const result = await check({
+  return (req, res, next) => {
+    const result = check({
       body: req.body,
       query: req.query,
       params: req.params,
     });
 
     if (result !== true) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Bad request, Something wrong.',
-        errors: result.map((err) => ({
-          type: err.type,
-          request: err.field.split(".")[0],
-          field: err.field.split(".").pop(),
-          message: err.message.replace(/(body|query|params)\./g, ''),
-        })),
+      return res.status(422).json({
+        message: 'Unprocessable Entity.',
+        errors: formatErrors(result),
       });
     }
 
