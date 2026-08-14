@@ -10,6 +10,16 @@ module.exports = {
         autoIncrement: true,
         allowNull: false
       } ,
+      company_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'companies',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      },
       name: {
         type: Sequelize.STRING,
         allowNull: false,

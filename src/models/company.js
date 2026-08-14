@@ -50,7 +50,12 @@ module.exports = (sequelize, DataTypes) => {
 	Company.associate = (models) => {
 		Company.hasMany(models.User, {
 			foreignKey: 'company_id',
-			as: 'companies'
+			as: 'users'
+		});
+
+		Company.hasMany(models.Role, {
+			foreignKey: 'company_id',
+			as: 'roles'
 		});
 	};
 

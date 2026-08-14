@@ -13,6 +13,16 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: true
 		},
+		company_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'companies',
+        key: 'id'
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL'
+    },
 	}, {
 		tableName: 'roles',
 		timestamps: true,
@@ -37,6 +47,11 @@ module.exports = (sequelize, DataTypes) => {
     Role.hasMany(models.User, {
       foreignKey: 'role_id',
       as: 'users'
+    });
+
+		Role.belongsTo(models.Company, {
+      foreignKey: 'company_id',
+      as: 'company'
     });
   };
 
