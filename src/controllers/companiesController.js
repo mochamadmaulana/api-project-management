@@ -1,12 +1,22 @@
+const { Op } = require('sequelize');
 const { Company } = require('../models');
 
 const getAllCompanies = async (req, res) => {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = Math.max(1, parseInt(req.query.show, 10) || 10);
+    const search = req.query.search || '';
     const offset = (page - 1) * limit;
 
+    const whereCondition = {};
+    if (search) {
+      whereCondition.name = {
+        [Op.like]: `%${search.toString()}%`
+      };
+    }
+
     const { rows: companies, count: totalItems } = await Company.findAndCountAll({
+      where: whereCondition,
       limit,
       offset,
       attributes: { exclude: ['deleted_at'] },
