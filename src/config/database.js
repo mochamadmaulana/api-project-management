@@ -1,28 +1,15 @@
-require("dotenv").config();
+const knex = require('knex');
 
-module.exports = {
-  "development": {
-    "username": process.env.DB_USER || "root",
-    "password": process.env.DB_PASS,
-    "database": process.env.DB_NAME,
-    "host": process.env.DB_HOST,
-    "dialect": process.env.DB_DIALECT || "mysql",
-    "timezone": process.env.DB_TIMEZONE,
+const db = knex({
+  client: process.env.DB_CLIENT,
+  connection: {
+    host: process.env.DB_HOST || '127.0.0.1',
+    port: process.env.DB_PORT || 3306,
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASS || '',
+    database: process.env.DB_NAME || 'express_db',
   },
-  "test": {
-    "username": process.env.DB_USER || "root",
-    "password": process.env.DB_PASS,
-    "database": process.env.DB_NAME,
-    "host": process.env.DB_HOST,
-    "dialect": process.env.DB_DIALECT || "mysql",
-    "timezone": process.env.DB_TIMEZONE,
-  },
-  "production": {
-    "username": process.env.DB_USER || "root",
-    "password": process.env.DB_PASS,
-    "database": process.env.DB_NAME,
-    "host": process.env.DB_HOST,
-    "dialect": process.env.DB_DIALECT || "mysql",
-    "timezone": process.env.DB_TIMEZONE,
-  }
-}
+  pool: { min: 2, max: 10 },
+});
+
+module.exports = db;
